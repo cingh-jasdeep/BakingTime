@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--using card view to show touch selector-->
+<!--https://stackoverflow.com/questions/34047815/how-to-have-selectableitembackground-on-imageview-->
+<android.support.v7.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="@dimen/recipe_card_margin_tlr"
+    android:layout_marginLeft="@dimen/recipe_card_margin_tlr"
+    android:layout_marginRight="@dimen/recipe_card_margin_tlr"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!--android:clickable="true"-->
+    <!--android:focusable="true"-->
+    <!--android:foreground="@drawable/touch_selector"-->
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="@dimen/recipe_item_padding">
+
+        <TextView
+            android:id="@+id/tv_recipe_name"
+            style="@style/Base.TextAppearance.AppCompat.Headline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            app:layout_constraintEnd_toStartOf="@+id/iv_movie_poster"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Yellow Cake" />
+
+        <TextView
+            android:id="@+id/tv_number_of_ingredients_label"
+            style="@style/TextAppearance.AppCompat.Small"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="16dp"
+            android:text="@string/recipe_number_of_ingredients_label"
+            app:layout_constraintStart_toStartOf="@+id/tv_recipe_name"
+            app:layout_constraintTop_toBottomOf="@+id/tv_recipe_name" />
+
+        <TextView
+            android:id="@+id/tv_number_of_ingredients"
+            style="@style/TextAppearance.AppCompat.Body1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginLeft="16dp"
+            app:layout_constraintBaseline_toBaselineOf="@+id/tv_number_of_ingredients_label"
+            app:layout_constraintStart_toEndOf="@+id/tv_number_of_ingredients_label"
+            tools:text="8" />
+
+
+        <TextView
+            android:id="@+id/tv_number_of_steps_label"
+            style="@style/TextAppearance.AppCompat.Small"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/recipe_number_of_steps_label"
+            app:layout_constraintStart_toStartOf="@+id/tv_number_of_ingredients_label"
+            app:layout_constraintTop_toBottomOf="@+id/tv_number_of_ingredients_label" />
+
+        <TextView
+            android:id="@+id/tv_number_of_steps"
+            style="@style/TextAppearance.AppCompat.Body1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBaseline_toBaselineOf="@+id/tv_number_of_steps_label"
+            app:layout_constraintStart_toStartOf="@+id/tv_number_of_ingredients"
+            tools:text="4" />
+
+        <!--This ImageView holds the recipe image-->
+        <com.inthecheesefactory.thecheeselibrary.widget.AdjustableImageView
+            android:id="@+id/iv_movie_poster"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:adjustViewBounds="true"
+            android:scaleType="centerCrop"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@mipmap/ic_launcher" />
+
+    </android.support.constraint.ConstraintLayout>
+
+
+</android.support.v7.widget.CardView>

@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Baking Time</string>
+    <string name="error_message">An error has occurred! Please try again later</string>
+    <string name="recipe_number_of_ingredients_label"># Ingredients: </string>
+    <string name="recipe_number_of_steps_label"># Steps: </string>
+
+</resources>
