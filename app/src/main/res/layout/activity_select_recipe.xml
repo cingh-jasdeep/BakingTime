@@ -20,6 +20,7 @@
                 android:layout_height="match_parent"
                 android:columnWidth="300dp"
                 tools:itemCount="3"
+                android:visibility="invisible"
                 tools:listitem="@layout/recipe_item" />
 
         </android.support.v4.widget.SwipeRefreshLayout>

@@ -2,6 +2,7 @@ package com.example.android.bakingtime.ui.select_recipe_step.adapters;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -91,18 +92,22 @@ public class RecipeStepAdapter extends RecyclerView.Adapter<RecipeStepAdapter.Re
     public void onBindViewHolder(@NonNull RecipeStepAdapterViewHolder holder, int position) {
         StepEntry step = mStepsData.get(position);
         if(step!=null) {
-            if(mSelectedPosition == position) {
-                holder.mItemView.setBackgroundColor(mContext.getResources()
-                        .getColor(R.color.colorActivated));
-            } else {
-                holder.mItemView.setBackgroundColor(mContext.getResources()
-                        .getColor(android.R.color.transparent));
+            if(mContext != null) {
 
+                if (mSelectedPosition == position) {
+                    holder.mItemView.setBackgroundColor(
+                            ContextCompat.getColor(mContext, R.color.colorActivated));
+                } else {
+                    holder.mItemView.setBackgroundColor(
+                            ContextCompat.getColor(mContext, android.R.color.transparent));
+
+                }
+                holder.mRecipeStepNumberTextTextView.setText(String.format(
+                        mContext.getString(R.string.formatted_recipe_step_desc),
+                        Integer.toString(position - INTRODUCTION_STEPS + 1)));
+                holder.mRecipeStepDescriptionTextView.setText(step.getShortDescription());
             }
-            holder.mRecipeStepNumberTextTextView.setText(String.format(
-                    mContext.getString(R.string.formatted_recipe_step_desc),
-                            Integer.toString(position - INTRODUCTION_STEPS + 1)));
-            holder.mRecipeStepDescriptionTextView.setText(step.getShortDescription());
+
         }
     }
 

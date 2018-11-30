@@ -117,6 +117,7 @@ public class RecipeStepDetailFragment extends Fragment implements ConnectivityCh
     private void displayRecipeStepMedia(StepEntry stepEntry) {
 
         mViewModel.getVideoHandler().releaseVideoPlayer();
+        mBinding.pbImageLoading.setVisibility(View.INVISIBLE);
 
         if(stepEntry.getVideoURL() == null || stepEntry.getVideoURL().equals("")) {
 
@@ -131,20 +132,34 @@ public class RecipeStepDetailFragment extends Fragment implements ConnectivityCh
                 }
             } else {
                 if(getContext() != null) {
+                    mBinding.pbImageLoading.setVisibility(View.VISIBLE);
                     Glide.with(getContext())
                             .load(stepEntry.getThumbnailURL())
                             .listener(new RequestListener<Drawable>() {
                                 @Override
                                 public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                    mBinding.pbImageLoading.setVisibility(View.INVISIBLE);
+
+                                    if(getContext() != null) {
+                                        Glide.with(getContext())
+                                                .load(R.mipmap.ic_launcher)
+                                                .into(mBinding.ivRecipeStepThumbnail);
+                                    }
+
                                     Log.e(TAG, "onLoadFailed: ", e);
                                     return false;
                                 }
 
                                 @Override
                                 public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                                    String photoA11y = String.format(getString(R.string.a11y_recipe_step_photo),
-                                            stepEntry.getDescription());
-                                    mBinding.ivRecipeStepThumbnail.setContentDescription(photoA11y);
+                                    mBinding.pbImageLoading.setVisibility(View.INVISIBLE);
+
+                                    if(getContext() != null) {
+                                        String photoA11y = String.format(getContext().getString(R.string.a11y_recipe_step_photo),
+                                                stepEntry.getDescription());
+                                        mBinding.ivRecipeStepThumbnail.setContentDescription(photoA11y);
+                                    }
+
                                     return false;
                                 }
                             })

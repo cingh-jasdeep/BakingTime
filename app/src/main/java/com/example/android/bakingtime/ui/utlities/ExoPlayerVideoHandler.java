@@ -17,6 +17,8 @@ import com.google.android.exoplayer2.util.Util;
 
 import java.util.Objects;
 
+//source:
+// https://medium.com/tall-programmer/fullscreen-functionality-with-android-exoplayer-5fddad45509f
 public class ExoPlayerVideoHandler
 {
 

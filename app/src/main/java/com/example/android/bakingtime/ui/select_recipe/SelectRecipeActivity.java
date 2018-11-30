@@ -5,7 +5,12 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.annotation.VisibleForTesting;
 import android.support.design.widget.Snackbar;
+import android.support.test.espresso.IdlingResource;
+import android.support.test.espresso.idling.CountingIdlingResource;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -41,7 +46,19 @@ public class SelectRecipeActivity extends AppCompatActivity
     private ActivitySelectRecipeBinding mBinding;
     private MenuItem mRefreshMenuItem = null;
     private Snackbar mSnackBar;
+    private Bundle mSavedInstanceState;
 
+    @Nullable
+    private CountingIdlingResource mSelectRecipeActivityIdlingResource;
+
+    @VisibleForTesting
+    @NonNull
+    public IdlingResource getIdlingResource() {
+        if(mSelectRecipeActivityIdlingResource == null) {
+            mSelectRecipeActivityIdlingResource = new CountingIdlingResource(TAG);
+        }
+        return mSelectRecipeActivityIdlingResource;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,10 +66,17 @@ public class SelectRecipeActivity extends AppCompatActivity
         setContentView(R.layout.activity_select_recipe);
         setupUiComponents();
         connectViewModel();
-        //first load is done by network connection
-//        loadRecipeData(false);
+        mSavedInstanceState = savedInstanceState;
+    }
 
-        ConnectionBuddyUtils.clearConnectionBuddyState(savedInstanceState, this);
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if(mBinding != null && !mBinding.srlRvRecipes.isRefreshing()) {
+            showRefreshLoading(true);
+            loadRecipeData(false, mSelectRecipeActivityIdlingResource);
+        }
+        ConnectionBuddyUtils.clearConnectionBuddyState(mSavedInstanceState, this);
     }
 
     @Override
@@ -73,10 +97,14 @@ public class SelectRecipeActivity extends AppCompatActivity
      * This method will get load recipeWithData data into the recyclerview adapter
      *
      */
-    private void loadRecipeData(boolean forceRefresh) {
+    private void loadRecipeData(boolean forceRefresh,
+                                CountingIdlingResource countingIdlingResource) {
         if(mViewModel != null) {
-            mViewModel.loadRecipes(forceRefresh);
+            if (countingIdlingResource != null) {
+                countingIdlingResource.increment();
+            }
 
+            mViewModel.loadRecipes(forceRefresh);
             mViewModel.getRecipeListResourceData().observe(this, listResource -> {
                 Log.d(TAG, "Updating recipes display from LiveData in ViewModel");
                 if(listResource != null) {
@@ -85,6 +113,10 @@ public class SelectRecipeActivity extends AppCompatActivity
                             Log.i(TAG, "onChanged: [error] " + listResource.message);
                             showErrorToast();
                             showRecipesData(listResource.data, false);
+
+                            if (countingIdlingResource != null) {
+                                countingIdlingResource.decrement();
+                            }
                             break;
                         }
                         case LOADING: {
@@ -93,6 +125,10 @@ public class SelectRecipeActivity extends AppCompatActivity
                         }
                         case SUCCESS: {
                             showRecipesData(listResource.data, false);
+
+                            if (countingIdlingResource != null) {
+                                countingIdlingResource.decrement();
+                            }
                             break;
                         }
                     }
@@ -127,14 +163,12 @@ public class SelectRecipeActivity extends AppCompatActivity
 
     private void setupUiComponents() {
         mBinding = DataBindingUtil.setContentView(this, R.layout.activity_select_recipe);
-        mRecipeAdapter = new RecipeAdapter(this, this);
 
+        mRecipeAdapter = new RecipeAdapter(this, this);
         mBinding.rvRecipes.setHasFixedSize(true);
         mBinding.rvRecipes.setAdapter(mRecipeAdapter);
 
         mBinding.srlRvRecipes.setOnRefreshListener(this);
-        mBinding.srlRvRecipes.setRefreshing(true);
-
     }
 
     private void showRecipeDataView(boolean show) {
@@ -182,7 +216,7 @@ public class SelectRecipeActivity extends AppCompatActivity
         if (id == R.id.action_refresh) {
             if(mBinding != null && !mBinding.srlRvRecipes.isRefreshing()) {
                 showRefreshLoading(true);
-                loadRecipeData(true);
+                loadRecipeData(true, mSelectRecipeActivityIdlingResource);
             }
             return true;
         }
@@ -209,16 +243,19 @@ public class SelectRecipeActivity extends AppCompatActivity
 
     @Override
     public void onRefresh() {
-        if(mBinding != null) {
-            loadRecipeData(true);
-        }
+        loadRecipeData(true, mSelectRecipeActivityIdlingResource);
     }
 
     @Override
     public void onConnectionChange(ConnectivityEvent event) {
         boolean isConnected = event.getState() == ConnectivityState.CONNECTED;
         enableRefreshControls(isConnected);
-        loadRecipeData(false);
+        if(isConnected) {
+            if(mBinding != null && !mBinding.srlRvRecipes.isRefreshing()) {
+                showRefreshLoading(true);
+                loadRecipeData(false, mSelectRecipeActivityIdlingResource);
+            }
+        }
         showConnectionSnackBar(isConnected);
     }
 
