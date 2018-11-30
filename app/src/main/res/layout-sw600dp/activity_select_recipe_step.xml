@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+
+    <!--Example code taken from Android Me project in advanced android-->
+
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:baselineAligned="false">
+
+        <!--
+        This layout is a two-pane layout for the master/detail flow.
+        -->
+
+        <!-- The master fragment -->
+        <FrameLayout
+            android:id="@+id/fl_fragment_master_container"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="3" />
+
+        <!-- A small divider -->
+        <View
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:background="@android:color/darker_gray"
+            android:layout_weight="0.2"/>
+
+        <!-- The detail fragment container -->
+        <FrameLayout
+            android:id="@+id/fl_fragment_container"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="7"/>
+
+
+
+    </LinearLayout>
+</layout>

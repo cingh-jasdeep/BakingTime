@@ -2,4 +2,15 @@
 <resources>
     <dimen name="recipe_item_padding">16dp</dimen>
     <dimen name="recipe_card_margin_tlr">8dp</dimen>
+    <dimen name="padding_recipe_step_detail_components">8dp</dimen>
+    <dimen name="padding_recipe_step_detail_instruction">16dp</dimen>
+
+    <!--
+Refer to App Widget Documentation for margin information
+http://developer.android.com/guide/topics/appwidgets/index.html#CreatingLayout
+    -->
+    <dimen name="widget_margin">8dp</dimen>
+    <dimen name="widget_ingredients_size">250dp</dimen>
+    <dimen name="widget_ingredients_main_layout_padding">8dp</dimen>
+    <dimen name="widget_ingredients_text_margin_bottom">8dp</dimen>
 </resources>

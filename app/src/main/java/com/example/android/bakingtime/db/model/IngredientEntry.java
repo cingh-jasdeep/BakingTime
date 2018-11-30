@@ -14,26 +14,19 @@ import android.arch.persistence.room.PrimaryKey;
         indices = {@Index("recipe_id")})
 public class IngredientEntry {
 
+
     //https://stackoverflow.com/questions/44109700/how-to-make-primary-key-as-autoincrement-for-room-persistence-lib
     @PrimaryKey(autoGenerate = true)
-    private int id;
+    private Integer dbId;
 
     @ColumnInfo(name = "recipe_id")
     private int recipeId;
 
-    private int quantity;
+    private float quantity;
 
     private String measure;
 
     private String ingredient;
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
 
     public int getRecipeId() {
         return recipeId;
@@ -43,11 +36,11 @@ public class IngredientEntry {
         this.recipeId = recipeId;
     }
 
-    public int getQuantity() {
+    public float getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(int quantity) {
+    public void setQuantity(float quantity) {
         this.quantity = quantity;
     }
 
@@ -65,5 +58,13 @@ public class IngredientEntry {
 
     public void setIngredient(String ingredient) {
         this.ingredient = ingredient;
+    }
+
+    public Integer getDbId() {
+        return dbId;
+    }
+
+    public void setDbId(Integer dbId) {
+        this.dbId = dbId;
     }
 }

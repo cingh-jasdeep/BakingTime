@@ -15,7 +15,18 @@ import android.arch.persistence.room.PrimaryKey;
 
 public class StepEntry {
 
-    @PrimaryKey
+
+    public Integer getDbId() {
+        return dbId;
+    }
+
+    public void setDbId(Integer dbId) {
+        this.dbId = dbId;
+    }
+
+    @PrimaryKey(autoGenerate = true)
+    private Integer dbId;
+
     private int id;
 
     @ColumnInfo(name = "recipe_id")

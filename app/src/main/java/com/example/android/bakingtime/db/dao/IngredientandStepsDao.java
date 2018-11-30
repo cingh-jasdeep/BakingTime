@@ -3,6 +3,7 @@ package com.example.android.bakingtime.db.dao;
 import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;
+import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
 import android.arch.persistence.room.Transaction;
 
@@ -38,7 +39,7 @@ public abstract class IngredientandStepsDao {
     @Query("SELECT * FROM step WHERE  recipe_id = :recipeId")
     public abstract List<StepEntry> getStepsByRecipeId(int recipeId);
 
-    @Insert(onConflict = REPLACE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     public abstract void insertAllSteps(List<StepEntry> stepEntries);
 
     @Query("DELETE FROM step WHERE recipe_id = :recipeId")
@@ -52,6 +53,9 @@ public abstract class IngredientandStepsDao {
         this.deleteAllStepsByRecipeId(recipeId);
         insertAllSteps(stepEntries);
     }
+
+    @Query("SELECT * FROM step WHERE  recipe_id = :recipeId AND id = :stepId")
+    public abstract LiveData<StepEntry> getStepByRecipeIdAndStepId(Integer recipeId, Integer stepId);
 
 }
 

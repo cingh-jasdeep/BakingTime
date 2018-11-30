@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+<android.support.v7.widget.RecyclerView
+    android:id="@+id/rv_recipe_igredients"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:itemCount="3"
+    tools:listitem="@layout/recipe_ingredient_item"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" />
+</layout>

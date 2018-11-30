@@ -15,9 +15,11 @@ public class RecipeEntry {
 
     private String name;
 
+    //for api data fetching only
     @Ignore
     private List<IngredientEntry> ingredients;
 
+    //for api data fetching only
     @Ignore
     private List<StepEntry> steps;
 
@@ -73,3 +75,4 @@ public class RecipeEntry {
         this.image = image;
     }
 }
+

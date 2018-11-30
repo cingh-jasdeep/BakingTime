@@ -1,7 +1,53 @@
-<resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="app_name">Baking Time</string>
-    <string name="error_message">An error has occurred! Please try again later</string>
+
+    <!--recipe list item labels-->
     <string name="recipe_number_of_ingredients_label"># Ingredients: </string>
     <string name="recipe_number_of_steps_label"># Steps: </string>
+
+    <!--recipe step list item strings-->
+    <string name="formatted_recipe_step_desc">Step <xliff:g id="recipe_step_number">%1$s</xliff:g></string>
+
+    <!--recipe ingredient list item strings-->
+    <string name="formatted_recipe_ingredient_serial_number"><xliff:g id="recipe_ingredient_number">%1$s</xliff:g>.</string>
+    <!--http://www.java67.com/2014/06/how-to-format-float-or-double-number-java-example.html-->
+    <string name="formatted_recipe_ingredient_measure"><xliff:g id="recipe_ingredient_measurement">%1$s</xliff:g></string>
+
+    <!--recipe step detail strings-->
+    <string name="formatted_recipe_step_position"><xliff:g id="recipe_step_current_postion">%1$s</xliff:g> /
+        <xliff:g id="recipe_step_end_postion">%2$s</xliff:g></string>
+
+
+    <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+          - Used for Accessibility purposes (Accessibility == a11y)                            -
+          -                                                                                    -
+          - Fun Fact: Accessibility is abbreviated a11y because accessibility starts with 'a', -
+          - followed by 11 letters, and then a 'y'. It is pronounced alley, like an alley cat. -
+          - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+    <string name="a11y_recipe_photo">Photo of recipe: <xliff:g id="recipe_photo">%1$s</xliff:g></string>
+    <string name="a11y_recipe_step_photo">Photo of recipe step: <xliff:g id="recipe_step_photo">%1$s</xliff:g></string>
+
+
+    <string name="error_message">An error has occurred! Please try again later</string>
+    <string name="message_no_show">No recipes!</string>
+    <string name="message_no_show_recipe_step">No recipe found! Closing....</string>
+    <string name="recipe_quantity_label">Qty: </string>
+    <string name="recipe_measure_label">UOM: </string>
+    <string name="label_list_recipe_ingredients">Recipe Ingredients</string>
+    <string name="txt_recipe_step_detail_button_previous_step">Previous step</string>
+    <string name="txt_recipe_step_detail_button_next_step">Next step</string>
+    <string name="txt_recipe_step_detail_button_last_step">Done!</string>
+    <string name="txt_recipe_step_detail_button_first_step">Let\'s Begin!</string>
+    <string name="txt_ingredients_actionbar_subtitle">Ingredients</string>
+    <string name="message_no_internet_media_may_not_load">Internet Offline! Description media may not load.</string>
+    <string name="appwidget_text">EXAMPLE</string>
+    <string name="add_widget">Add widget</string>
+    <string name="pref_recipe_id_key">recipe-id</string>
+    <string name="message_widget_first_time_load">Open app to load recipes</string>
+    <string name="text_widget_ingredients_label">Ingredients</string>
+    <string name="action_refresh">Refresh</string>
+    <string name="message_recipe_select_cannot_fetch">Error getting recipes! Check internet..</string>
+    <string name="message_no_internet_refresh_disabled">Internet Offline. Refresh option disabled!</string>
+
 
 </resources>

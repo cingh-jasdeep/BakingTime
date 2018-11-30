@@ -9,15 +9,15 @@
     android:layout_marginTop="@dimen/recipe_card_margin_tlr"
     android:layout_marginLeft="@dimen/recipe_card_margin_tlr"
     android:layout_marginRight="@dimen/recipe_card_margin_tlr"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="@drawable/recipe_card_selector"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!--android:clickable="true"-->
-    <!--android:focusable="true"-->
-    <!--android:foreground="@drawable/touch_selector"-->
+
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="@dimen/recipe_item_padding">
+        android:layout_height="match_parent">
 
         <TextView
             android:id="@+id/tv_recipe_name"
@@ -26,10 +26,10 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginLeft="8dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="16dp"
             android:layout_marginEnd="8dp"
             android:layout_marginRight="8dp"
-            app:layout_constraintEnd_toStartOf="@+id/iv_movie_poster"
+            app:layout_constraintEnd_toStartOf="@+id/iv_recipe_photo"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Yellow Cake" />
@@ -42,8 +42,11 @@
             android:layout_marginStart="8dp"
             android:layout_marginLeft="8dp"
             android:layout_marginTop="16dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
             android:text="@string/recipe_number_of_ingredients_label"
-            app:layout_constraintStart_toStartOf="@+id/tv_recipe_name"
+            app:layout_constraintEnd_toStartOf="@+id/iv_recipe_photo"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tv_recipe_name" />
 
         <TextView
@@ -51,8 +54,8 @@
             style="@style/TextAppearance.AppCompat.Body1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
             app:layout_constraintBaseline_toBaselineOf="@+id/tv_number_of_ingredients_label"
             app:layout_constraintStart_toEndOf="@+id/tv_number_of_ingredients_label"
             tools:text="8" />
@@ -64,7 +67,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            android:layout_marginBottom="16dp"
             android:text="@string/recipe_number_of_steps_label"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="@+id/tv_number_of_ingredients_label"
             app:layout_constraintTop_toBottomOf="@+id/tv_number_of_ingredients_label" />
 
@@ -79,16 +84,14 @@
 
         <!--This ImageView holds the recipe image-->
         <com.inthecheesefactory.thecheeselibrary.widget.AdjustableImageView
-            android:id="@+id/iv_movie_poster"
+            android:id="@+id/iv_recipe_photo"
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:adjustViewBounds="true"
-            android:scaleType="centerCrop"
-            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:src="@mipmap/ic_launcher" />
+            android:src="@mipmap/ic_launcher" />
 
     </android.support.constraint.ConstraintLayout>
 

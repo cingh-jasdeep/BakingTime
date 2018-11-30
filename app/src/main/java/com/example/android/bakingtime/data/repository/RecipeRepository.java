@@ -1,9 +1,6 @@
 package com.example.android.bakingtime.data.repository;
 
-import android.arch.core.util.Function;
 import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
-import android.arch.lifecycle.Transformations;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -16,6 +13,7 @@ import com.example.android.bakingtime.api.response_models.ApiResponse;
 import com.example.android.bakingtime.db.AppDatabase;
 import com.example.android.bakingtime.db.model.IngredientEntry;
 import com.example.android.bakingtime.db.model.RecipeEntry;
+import com.example.android.bakingtime.db.model.RecipeWithIngredientsAndSteps;
 import com.example.android.bakingtime.db.model.StepEntry;
 
 import java.util.List;
@@ -45,27 +43,28 @@ public class RecipeRepository {
         return sInstance;
     }
 
-    public LiveData<Resource<List<RecipeEntry>>> loadRecipes(){
+    public LiveData<Resource<List<RecipeWithIngredientsAndSteps>>> loadRecipes
+            (final boolean forceRefresh){
 
         AppExecutors appExecutors = AppExecutors.getInstance();
 
-        return new NetworkBoundResource<List<RecipeEntry>, List<RecipeEntry>>(appExecutors) {
+        return new NetworkBoundResource<List<RecipeWithIngredientsAndSteps>, List<RecipeEntry>>(appExecutors) {
 
             @Override
             protected void saveCallResult(@NonNull List<RecipeEntry> apiRecipeListing) {
 
                 //if no recipes fetched from network even after successful network transaction
                 if (apiRecipeListing.size() == 0) {
-                    RecipeRepository.this.deleteAllRecipes();
+                    deleteAllRecipes();
                     return;
                 }
 
-                fixIdStepsAndIngredients(apiRecipeListing);
+                fixRecipeIdInStepsAndIngredients(apiRecipeListing);
 
                 //update recipes in database
                 mDb.beginTransaction();
                 try {
-                    //clear old movies
+//                    clear old recipes
                     replaceAllRecipes(apiRecipeListing);
                     replaceAllIngredientsAndStepsData(apiRecipeListing);
 
@@ -77,23 +76,14 @@ public class RecipeRepository {
             }
 
             @Override
-            protected boolean shouldFetch(@Nullable List<RecipeEntry> data) {
-                return (data == null || data.size() == 0);
+            protected boolean shouldFetch(@Nullable List<RecipeWithIngredientsAndSteps> data) {
+                return (forceRefresh || data == null || data.size() == 0);
             }
 
             @NonNull
             @Override
-            protected LiveData<List<RecipeEntry>> loadFromDb() {
-                final MutableLiveData<List<RecipeEntry>> mutableRecipeList = new MutableLiveData<>();
-                LiveData<List<RecipeEntry>> liveRecipeList = getRecipes();
-
-                return Transformations.switchMap(liveRecipeList, new Function<List<RecipeEntry>, LiveData<List<RecipeEntry>>>() {
-                    @Override
-                    public LiveData<List<RecipeEntry>> apply(List<RecipeEntry> recipeEntries) {
-                        mutableRecipeList.setValue(getRecipesWithIngredientsAndStepsFromDb(recipeEntries));
-                        return mutableRecipeList;
-                    }
-                });
+            protected LiveData<List<RecipeWithIngredientsAndSteps>> loadFromDb() {
+                return loadRecipesWithIngredientsAndSteps();
             }
 
             @NonNull
@@ -106,74 +96,55 @@ public class RecipeRepository {
 
     }
 
-    private LiveData<List<RecipeEntry>> getRecipes() {
-        return mDb.recipeDao().getRecipes();
+    public LiveData<RecipeWithIngredientsAndSteps> loadRecipeByIdWithIngredientsAndSteps(Integer recipeId) {
+        Log.d(TAG, "Actively loading recipe by id in DataBase from Repo");
+        return mDb.recipeIngredientsStepsDao().loadRecipeByIdWithIngredientsAndSteps(recipeId);
     }
 
-    private List<RecipeEntry> getRecipesWithIngredientsAndStepsFromDb(List<RecipeEntry> recipeEntries) {
-
-        for (RecipeEntry recipe:
-                recipeEntries) {
-
-            recipe.setIngredients(getIngredientsByRecipeId(recipe));
-            recipe.setSteps(getStepsByRecipeId(recipe));
-
-        }
-        return  recipeEntries;
+    public RecipeWithIngredientsAndSteps getRecipeByIdWithIngredientsAndSteps(Integer recipeId) {
+        Log.d(TAG, "Actively getting recipe by id in DataBase from Repo");
+        return mDb.recipeIngredientsStepsDao().getRecipeByIdWithIngredientsAndSteps(recipeId);
     }
 
-    private List<StepEntry> getStepsByRecipeId(RecipeEntry recipe) {
-        return mDb.ingredientandStepsDao().getStepsByRecipeId(recipe.getId());
+
+    private LiveData<List<RecipeWithIngredientsAndSteps>> loadRecipesWithIngredientsAndSteps() {
+        Log.d(TAG, "Actively loading all recipes in DataBase from Repo");
+        return mDb.recipeIngredientsStepsDao().loadRecipesWithIngredientsAndSteps();
     }
 
-    private List<IngredientEntry> getIngredientsByRecipeId(RecipeEntry recipe) {
-        return mDb.ingredientandStepsDao().getIngredientsByRecipeId(recipe.getId());
+    public List<RecipeWithIngredientsAndSteps> getRecipesWithIngredientsAndSteps() {
+        Log.d(TAG, "Actively loading all recipes in DataBase from Repo");
+        return mDb.recipeIngredientsStepsDao().getRecipesWithIngredientsAndSteps();
     }
 
-    private void replaceAllIngredientsAndStepsData(List<RecipeEntry> apiRecipeListing) {
-
-        deleteAllIngredients();
-        deleteAllSteps();
-
-        for (RecipeEntry recipe:
-                apiRecipeListing) {
-
-            insertAllSteps(recipe);
-            insertAllIngredients(recipe);
-        }
-    }
 
     private void insertAllIngredients(RecipeEntry recipe) {
+        Log.d(TAG, "Actively inserting ingredients in DataBase from Repo");
         mDb.ingredientandStepsDao().insertAllIngredients(recipe.getIngredients());
     }
 
+    private void deleteAllIngredients() {
+        Log.d(TAG, "Actively deleting ingredients in DataBase from Repo");
+        mDb.ingredientandStepsDao().deleteAllIngredients();
+    }
+
     private void insertAllSteps(RecipeEntry recipe) {
+        Log.d(TAG, "Actively inserting steps in DataBase from Repo");
         mDb.ingredientandStepsDao().insertAllSteps(recipe.getSteps());
     }
 
     private void deleteAllSteps() {
+        Log.d(TAG, "Actively deleting steps in DataBase from Repo");
         mDb.ingredientandStepsDao().deleteAllSteps();
     }
 
-    private void deleteAllIngredients() {
-        mDb.ingredientandStepsDao().deleteAllIngredients();
-    }
-
-    private void replaceAllRecipes(@NonNull List<RecipeEntry> apiRecipeListing) {
-        mDb.recipeDao().replaceAllRecipes(apiRecipeListing);
-    }
-
-    private void insertAllRecipes(List<RecipeEntry> recipeEntries) {
-        mDb.recipeDao().insertAllRecipes(recipeEntries);
-    }
 
 
-    public void deleteAllRecipes() {
-        mDb.recipeDao().deleteAllRecipes();
-    }
-
-
-    private void fixIdStepsAndIngredients(List<RecipeEntry> apiRecipeListing) {
+    /**
+     * used to add recipeid into api recipe listing steps and ingredients
+     * @param apiRecipeListing api response for recipe listing
+     */
+    private void fixRecipeIdInStepsAndIngredients(List<RecipeEntry> apiRecipeListing) {
 
         for (RecipeEntry recipe:
                 apiRecipeListing) {
@@ -190,6 +161,33 @@ public class RecipeRepository {
             }
         }
 
+    }
+
+    private void deleteAllRecipes() {
+        Log.d(TAG, "Actively deleting recipes in DataBase from Repo");
+        mDb.recipeDao().deleteAllRecipes();
+    }
+
+    private void replaceAllRecipes(@NonNull List<RecipeEntry> apiRecipeListing) {
+        Log.d(TAG, "Actively replacing recipes in DataBase from Repo");
+        mDb.recipeDao().replaceAllRecipes(apiRecipeListing);
+    }
+
+    /**
+     * saves fixed recipe listing from api to db
+     * @param apiRecipeListing api listing to saved to db
+     */
+    private void replaceAllIngredientsAndStepsData(List<RecipeEntry> apiRecipeListing) {
+
+        deleteAllIngredients();
+        deleteAllSteps();
+
+        for (RecipeEntry recipe:
+                apiRecipeListing) {
+
+            insertAllSteps(recipe);
+            insertAllIngredients(recipe);
+        }
     }
 
 

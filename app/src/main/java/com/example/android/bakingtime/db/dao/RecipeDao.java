@@ -16,7 +16,8 @@ import static android.arch.persistence.room.OnConflictStrategy.REPLACE;
 public abstract class RecipeDao {
 
     @Query("SELECT * FROM recipe WHERE id = :recipeId")
-    public abstract LiveData<RecipeEntry> loadMovieById(int recipeId);
+    public abstract LiveData<RecipeEntry> getRecipeById(int recipeId);
+
 
     @Query("SELECT * FROM recipe")
     public abstract LiveData<List<RecipeEntry>> getRecipes();

@@ -8,6 +8,7 @@ import android.util.Log;
 
 import com.example.android.bakingtime.db.dao.IngredientandStepsDao;
 import com.example.android.bakingtime.db.dao.RecipeDao;
+import com.example.android.bakingtime.db.dao.RecipeIngredientsStepsDao;
 import com.example.android.bakingtime.db.model.IngredientEntry;
 import com.example.android.bakingtime.db.model.RecipeEntry;
 import com.example.android.bakingtime.db.model.StepEntry;
@@ -40,6 +41,7 @@ public abstract class AppDatabase extends RoomDatabase {
 
     public abstract RecipeDao recipeDao();
     public abstract IngredientandStepsDao ingredientandStepsDao();
+    public abstract RecipeIngredientsStepsDao recipeIngredientsStepsDao();
 
 
 }

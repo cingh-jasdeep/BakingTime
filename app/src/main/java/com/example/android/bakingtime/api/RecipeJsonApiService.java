@@ -13,6 +13,6 @@ import retrofit2.http.GET;
  *  API end points for network calls
  */
 public interface RecipeJsonApiService {
-    @GET()
+    @GET("android-baking-app-json")
     LiveData<ApiResponse<List<RecipeEntry>>> getRecipes();
 }

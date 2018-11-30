@@ -1,0 +1,56 @@
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+
+    android:id="@+id/fl_widget_main_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/background_light"
+    android:padding="@dimen/widget_margin">
+
+        <LinearLayout
+            android:id="@+id/ll_widget_ingredients_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="@dimen/widget_ingredients_main_layout_padding">
+            <TextView
+                android:id="@+id/tv_widget_recipe_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/widget_ingredients_text_margin_bottom"
+                tools:text="Nutella Pie"
+                style="@style/Base.TextAppearance.AppCompat.Large" />
+
+            <TextView
+                android:id="@+id/tv_widget_ingredients_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/widget_ingredients_text_margin_bottom"
+                android:text="@string/text_widget_ingredients_label"
+                style="@style/Base.TextAppearance.AppCompat.Medium" />
+
+            <TextView
+                android:id="@+id/tv_widget_ingredients_list"
+                style="@style/Base.TextAppearance.AppCompat.Body1"
+                app:fontFamily="serif-monospace"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:text="-\t2 Cup\t, Graham Cracker crumbs\n-\t6 Tblsp\t, Graham Cracker crumbs" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_widget_before_first_load"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:layout_gravity="center"
+            android:text="@string/message_widget_first_time_load"
+            style="@style/Base.TextAppearance.AppCompat.Medium"
+            android:visibility="invisible"
+            />
+
+
+
+</FrameLayout>

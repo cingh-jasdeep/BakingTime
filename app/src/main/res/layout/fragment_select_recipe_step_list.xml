@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+
+    <android.support.v4.widget.NestedScrollView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <android.support.v7.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:id="@+id/tv_recipe_ingredients_list_opener"
+                    style="@style/Base.TextAppearance.AppCompat.Headline"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/recipe_item_padding"
+                    android:textAlignment="center"
+                    android:text="@string/label_list_recipe_ingredients"
+                    android:background="@drawable/recipe_card_selector" />
+            </android.support.v7.widget.CardView>
+
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/rv_recipe_steps"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:itemCount="3"
+                tools:listitem="@layout/recipe_step_item" />
+        </LinearLayout>
+
+
+    </android.support.v4.widget.NestedScrollView>
+
+</layout>
