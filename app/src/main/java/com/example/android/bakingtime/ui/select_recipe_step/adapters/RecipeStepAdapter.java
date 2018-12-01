@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.example.android.bakingtime.data.Constant.INTRODUCTION_STEPS;
+import static com.example.android.bakingtime.data.Constant.INVALID_RECIPE_STEP_INDEX;
 
 public class RecipeStepAdapter extends RecyclerView.Adapter<RecipeStepAdapter.RecipeStepAdapterViewHolder>{
 
@@ -24,7 +25,7 @@ public class RecipeStepAdapter extends RecyclerView.Adapter<RecipeStepAdapter.Re
     private RecipeStepAdapterOnClickHandler mClickHandler;
     // highlight selected position in RV
     // https://stackoverflow.com/questions/39138315/how-to-highlight-selected-item-in-recyclerview
-    private int mSelectedPosition = -1;
+    private int mSelectedPosition = INVALID_RECIPE_STEP_INDEX;
 
     public RecipeStepAdapter(Context context, RecipeStepAdapterOnClickHandler clickHandler) {
 
@@ -134,7 +135,7 @@ public class RecipeStepAdapter extends RecyclerView.Adapter<RecipeStepAdapter.Re
      *  used to clear selected position
      */
     public void clearSelectedPosition() {
-        mSelectedPosition = -1;
+        mSelectedPosition = INVALID_RECIPE_STEP_INDEX;
         notifyDataSetChanged();
     }
 

@@ -89,11 +89,22 @@ public class SelectRecipeStepViewModel extends AndroidViewModel {
     // https://proandroiddev.com/customizing-the-new-viewmodel-cf28b8a7c5fc
     public void writeTo(Bundle bundle) {
         if (bundle != null) {
-            bundle.putSerializable(Constant.EXTRA_FRAGMENT_STATE, mState.getValue());
-            if(mRecipeStepIndex.getValue() != null)
-                bundle.putInt(Constant.EXTRA_RECIPE_STEP_INDEX, mRecipeStepIndex.getValue());
-            if(mRecipeId.getValue() != null)
-                bundle.putInt(Constant.EXTRA_RECIPE_ID, mRecipeId.getValue());
+            Integer recipeId = mRecipeId.getValue();
+            FragmentState state = mState.getValue();
+            Integer recipeStepIndex = mRecipeStepIndex.getValue();
+
+            if(recipeId != null) {
+                bundle.putInt(Constant.EXTRA_RECIPE_ID, recipeId);
+            }
+
+            if(state != null) {
+                bundle.putSerializable(Constant.EXTRA_FRAGMENT_STATE, state);
+            }
+
+            if(recipeStepIndex != null) {
+                bundle.putInt(Constant.EXTRA_RECIPE_STEP_INDEX, recipeStepIndex);
+            }
+
             bundle.putBoolean(Constant.EXTRA_TWO_PANE, mTwoPane);
         }
     }

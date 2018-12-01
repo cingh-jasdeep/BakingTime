@@ -41,6 +41,7 @@ public class SelectRecipeStepListFragment extends Fragment implements RecipeStep
         return mBinding.getRoot();
     }
 
+    // onActivityCreated is called after onCreateView
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -77,6 +78,9 @@ public class SelectRecipeStepListFragment extends Fragment implements RecipeStep
                 mViewModel.getState().observe(this, fragmentState -> {
                     if(fragmentState!=null) {
                         switch (fragmentState) {
+                            case StepList:
+                                setIngredientsSelectViewBackgroundActivated(true);
+                                break;
                             case IngredientsList:
                                 mAdapter.clearSelectedPosition();
                                 setIngredientsSelectViewBackgroundActivated(true);

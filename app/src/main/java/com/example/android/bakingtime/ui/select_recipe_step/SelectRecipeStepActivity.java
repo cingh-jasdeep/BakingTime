@@ -4,6 +4,7 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.ActionBar;
@@ -136,19 +137,26 @@ public class SelectRecipeStepActivity extends AppCompatActivity {
     }
 
     private void showStepListFragment() {
-        if(mTwoPane) {
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fl_fragment_master_container, new SelectRecipeStepListFragment(),
-                            "visible_fragment")
-                    .replace(R.id.fl_fragment_container, new RecipeIngredientsListFragment())
-                    .commit();
+        //search for current fragment
+        Fragment currentBackStackFragment =
+                getSupportFragmentManager().findFragmentByTag("visible_fragment");
+
+        //only replace fragment if needed
+        if((!(currentBackStackFragment instanceof SelectRecipeStepListFragment))) {
+            if (mTwoPane) {
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fl_fragment_master_container, new SelectRecipeStepListFragment(),
+                                "visible_fragment")
+                        .replace(R.id.fl_fragment_container, new RecipeIngredientsListFragment())
+                        .commit();
 
 
-        } else {
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fl_fragment_container, new SelectRecipeStepListFragment(),
-                            "visible_fragment")
-                    .commit();
+            } else {
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fl_fragment_container, new SelectRecipeStepListFragment(),
+                                "visible_fragment")
+                        .commit();
+            }
         }
         if(mOnBackStackChangedListener == null) {
             mOnBackStackChangedListener = new SelectRecipeStepOnBackStackChangedListener();
@@ -159,11 +167,24 @@ public class SelectRecipeStepActivity extends AppCompatActivity {
     }
 
     private void showIngredientsListFragment() {
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fl_fragment_container, new RecipeIngredientsListFragment(),
-                        "visible_fragment")
-                .addToBackStack(null)
-                .commit();
+        //search for current fragment
+        Fragment currentBackStackFragment =
+                getSupportFragmentManager().findFragmentByTag("visible_fragment");
+
+        //only replace fragment if needed
+        if((!(currentBackStackFragment instanceof RecipeIngredientsListFragment))) {
+
+            FragmentTransaction transaction = getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fl_fragment_container, new RecipeIngredientsListFragment(),
+                            "visible_fragment");
+
+            if (!mTwoPane) {
+                transaction.addToBackStack(null);
+            }
+            transaction.commit();
+        }
+
         if (mOnBackStackChangedListener == null) {
             mOnBackStackChangedListener = new SelectRecipeStepOnBackStackChangedListener();
             getSupportFragmentManager().addOnBackStackChangedListener(
@@ -172,12 +193,22 @@ public class SelectRecipeStepActivity extends AppCompatActivity {
     }
 
     private void showStepDetailFragment() {
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.fl_fragment_container, new RecipeStepDetailFragment(),
-                        "visible_fragment")
-                .addToBackStack(null)
-                .commit();
+        //search for current fragment
+        Fragment currentBackStackFragment =
+                getSupportFragmentManager().findFragmentByTag("visible_fragment");
+
+        //only replace fragment if needed
+        if((!(currentBackStackFragment instanceof RecipeStepDetailFragment))) {
+            FragmentTransaction transaction = getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fl_fragment_container, new RecipeStepDetailFragment(),
+                            "visible_fragment");
+
+            if (!mTwoPane) {
+                transaction.addToBackStack(null);
+            }
+            transaction.commit();
+        }
         if (mOnBackStackChangedListener == null) {
             mOnBackStackChangedListener = new SelectRecipeStepOnBackStackChangedListener();
             getSupportFragmentManager().addOnBackStackChangedListener(

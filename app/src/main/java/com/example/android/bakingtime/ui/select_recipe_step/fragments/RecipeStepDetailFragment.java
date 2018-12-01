@@ -58,9 +58,13 @@ public class RecipeStepDetailFragment extends Fragment implements ConnectivityCh
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         setupUiComponents(inflater, container);
-        connectViewModel();
-
         return mBinding.getRoot();
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        connectViewModel();
     }
 
     private void setupUiComponents(LayoutInflater inflater, ViewGroup container) {
@@ -193,12 +197,54 @@ public class RecipeStepDetailFragment extends Fragment implements ConnectivityCh
 
     @Override
     public void onPause() {
+        //todo save player state here for savedinstance state
         if(mBinding.pvRecipeStepDetailVideoPlayer.getVisibility() == View.VISIBLE) {
             mViewModel.getVideoHandler().goToBackground();
         }
         ConnectionBuddyUtils.unregisterConnectionBuddyEvents(this);
         super.onPause();
     }
+//save player state in onpause (safest for all api)
+
+//release player code
+    // no guarantee for onstop so release in onpause
+//    @Override
+//    public void onPause() {
+//        super.onPause();
+//        if (Util.SDK_INT <= 23) {
+//            // release player
+//        }
+//    }
+
+//    there is guarantee so release later in onstop
+//    @Override
+//    public void onStop() {
+//        super.onStop();
+//        if (Util.SDK_INT > 23) {
+//            // release player
+//        }
+//    }
+
+    //initalize player code
+    //in 24 split screen so get initialize before
+//@Override
+//public void onStart() {
+//    super.onStart();
+//    if (Util.SDK_INT > 23) {
+//        // initialize player
+//    }
+//}
+//      in 23 or older can wait for onresume to initialize
+//    @Override
+//    public void onResume() {
+//        super.onResume();
+//        if ((Util.SDK_INT <= 23 || player == null)) {
+//            // initialize player
+//        }
+//    }
+
+    // previewseekbar
+    // pip for and after oreo (will need media session)
 
     @Override
     public void onResume() {
@@ -210,7 +256,6 @@ public class RecipeStepDetailFragment extends Fragment implements ConnectivityCh
         if(getActivity() !=null )
             handleOrientation(getActivity().getResources().getConfiguration());
     }
-
 
     @Override
     public void onConnectionChange(ConnectivityEvent event) {

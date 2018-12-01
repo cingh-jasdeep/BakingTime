@@ -4,7 +4,10 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <!-- clear text used for above api leve 28
+    https://stackoverflow.com/questions/45940861/android-8-cleartext-http-traffic-not-permitted-->
     <application
+        android:usesCleartextTraffic="true"
         android:name=".MainApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
