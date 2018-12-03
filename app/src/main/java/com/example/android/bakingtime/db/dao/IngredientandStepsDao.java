@@ -54,8 +54,11 @@ public abstract class IngredientandStepsDao {
         insertAllSteps(stepEntries);
     }
 
-    @Query("SELECT * FROM step WHERE  recipe_id = :recipeId AND id = :stepId")
-    public abstract LiveData<StepEntry> getStepByRecipeIdAndStepId(Integer recipeId, Integer stepId);
+    @Query("SELECT * FROM step WHERE  recipe_id = :recipeId AND recipe_list_index = :stepId")
+    public abstract StepEntry getStepByRecipeIdAndRecipeListIndex(Integer recipeId, Integer stepId);
+
+    @Query("SELECT * from step where recipe_id = :recipeId and recipe_list_index = :recipeListIndex limit 1")
+    public abstract LiveData<StepEntry> loadStepByRecipeIdAndRecipeListIndex(int recipeId, int recipeListIndex);
 
 }
 

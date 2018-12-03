@@ -6,6 +6,8 @@ import android.arch.persistence.room.ForeignKey;
 import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
 
+import com.google.gson.annotations.SerializedName;
+
 @Entity(tableName = "step",
         foreignKeys = @ForeignKey(entity = RecipeEntry.class,
                 parentColumns = "id",
@@ -27,7 +29,11 @@ public class StepEntry {
     @PrimaryKey(autoGenerate = true)
     private Integer dbId;
 
-    private int id;
+    @ColumnInfo(name = "recipe_list_index")
+    private int recipeListIndex;
+
+    @SerializedName("id")
+    private Integer networkId;
 
     @ColumnInfo(name = "recipe_id")
     private int recipeId;
@@ -43,14 +49,6 @@ public class StepEntry {
 
     @ColumnInfo(name = "thumbnail_url")
     private String thumbnailURL;
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
 
     public int getRecipeId() {
         return recipeId;
@@ -90,5 +88,21 @@ public class StepEntry {
 
     public void setThumbnailURL(String thumbnailURL) {
         this.thumbnailURL = thumbnailURL;
+    }
+
+    public Integer getNetworkId() {
+        return networkId;
+    }
+
+    public void setNetworkId(Integer networkId) {
+        this.networkId = networkId;
+    }
+
+    public int getRecipeListIndex() {
+        return recipeListIndex;
+    }
+
+    public void setRecipeListIndex(int recipeListIndex) {
+        this.recipeListIndex = recipeListIndex;
     }
 }

@@ -46,15 +46,13 @@ public class SelectRecipeStepViewModel extends AndroidViewModel {
             });
 
     public LiveData<StepEntry> step =
-            Transformations.map(mRecipeStepIndex, stepId -> {
-                if(recipeWithData == null || recipeWithData.getValue() == null) return null;
+            Transformations.switchMap(mRecipeStepIndex, stepIndex -> {
+                Integer recipeId = mRecipeId.getValue();
+                if(stepIndex == null || recipeId == null || mRepo == null) return null;
                 else {
-                    List<StepEntry>  stepEntries = recipeWithData.getValue().steps;
-                    if(stepEntries.get(stepId) == null) return null;
-                    else return stepEntries.get(stepId);
+                    return mRepo.loadStep(recipeId, stepIndex);
                 }
             });
-
 
     public SelectRecipeStepViewModel(@NonNull Application application, Bundle bundle) {
         super(application);

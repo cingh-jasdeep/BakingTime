@@ -63,6 +63,7 @@ public class SelectRecipeActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_select_recipe);
         setupUiComponents();
         connectViewModel();

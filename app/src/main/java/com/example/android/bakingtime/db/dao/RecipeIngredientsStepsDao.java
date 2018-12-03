@@ -6,6 +6,7 @@ import android.arch.persistence.room.Query;
 import android.arch.persistence.room.Transaction;
 
 import com.example.android.bakingtime.db.model.RecipeWithIngredientsAndSteps;
+import com.example.android.bakingtime.db.model.StepEntry;
 
 import java.util.List;
 

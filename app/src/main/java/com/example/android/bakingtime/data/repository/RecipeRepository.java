@@ -106,6 +106,20 @@ public class RecipeRepository {
         return mDb.recipeIngredientsStepsDao().getRecipeByIdWithIngredientsAndSteps(recipeId);
     }
 
+    public StepEntry getStep(Integer recipeId, Integer stepIndex) {
+        Log.d(TAG, "Actively getting recipe step in DataBase from Repo");
+        return mDb.recipeIngredientsStepsDao().getRecipeByIdWithIngredientsAndSteps(recipeId)
+                .steps.get(stepIndex);
+    }
+
+    public LiveData<StepEntry> loadStep(Integer recipeId, Integer stepIndex) {
+        Log.d(TAG, "Actively getting recipe step in DataBase from Repo");
+        if(recipeId == null || stepIndex == null) {
+            return null;
+        } else {
+            return mDb.ingredientandStepsDao().loadStepByRecipeIdAndRecipeListIndex(recipeId, stepIndex);
+        }
+    }
 
     private LiveData<List<RecipeWithIngredientsAndSteps>> loadRecipesWithIngredientsAndSteps() {
         Log.d(TAG, "Actively loading all recipes in DataBase from Repo");
@@ -150,9 +164,12 @@ public class RecipeRepository {
                 apiRecipeListing) {
             int recipeId = recipe.getId();
 
-            for (StepEntry step:
-                 recipe.getSteps()) {
+            //https://www.javatpoint.com/java-for-loop
+            for (int i = 0; i < recipe.getSteps().size(); i++) {
+
+                StepEntry step = recipe.getSteps().get(i);
                 step.setRecipeId(recipeId);
+                step.setRecipeListIndex(i);
             }
 
             for (IngredientEntry ingredient:

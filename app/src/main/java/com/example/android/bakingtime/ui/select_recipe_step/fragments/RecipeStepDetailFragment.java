@@ -57,6 +57,7 @@ public class RecipeStepDetailFragment extends Fragment implements ConnectivityCh
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+//        android.os.Debug.waitForDebugger();
         setupUiComponents(inflater, container);
         return mBinding.getRoot();
     }
