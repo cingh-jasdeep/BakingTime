@@ -55,8 +55,9 @@ public class RecipeIngredientsListFragment extends Fragment {
         if(getActivity() != null) {
             mViewModel = ViewModelProviders.of(getActivity())
                     .get(SelectRecipeStepViewModel.class);
-            mViewModel.recipeWithData.observe(this, recipeEntryWithData -> {
+            mViewModel.getRecipeWithData().observe(this, recipeEntryWithData -> {
                 if(recipeEntryWithData!=null) {
+                    mViewModel.getRecipeWithData().removeObservers(this);
                     mAdapter.setIngredientsData(recipeEntryWithData.ingredients);
                 }
             });

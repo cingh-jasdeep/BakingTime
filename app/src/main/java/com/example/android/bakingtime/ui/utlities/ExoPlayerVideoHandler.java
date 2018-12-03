@@ -24,16 +24,18 @@ public class ExoPlayerVideoHandler
 
     private SimpleExoPlayer player;
     private Uri playerUri;
-    private boolean isPlayerPlaying;
 
     public ExoPlayerVideoHandler(){}
 
     public void prepareExoPlayerForUri(Context context, Uri uri,
+                                       boolean videoPlayOnLoad, long videoCurrentPlayingPosition,
                                        PlayerView exoPlayerView){
+
         if(context != null && uri != null && exoPlayerView != null){
             if(!uri.equals(playerUri) || player == null){
-                // Create a new player if the player is null or
-                // we want to play a new video
+                if(player != null) {
+                    releaseVideoPlayer();
+                }
 
                 player = ExoPlayerFactory.newSimpleInstance(context);
 
@@ -54,37 +56,33 @@ public class ExoPlayerVideoHandler
             player.clearVideoSurface();
             player.setVideoTextureView(
                     (TextureView) exoPlayerView.getVideoSurfaceView());
-            player.seekTo(player.getCurrentPosition() + 1);
+            player.seekTo(videoCurrentPlayingPosition + 1);
             exoPlayerView.setPlayer(player);
+            player.setPlayWhenReady(videoPlayOnLoad);
         }
     }
 
     public void releaseVideoPlayer(){
         if(player != null)
         {
+            player.setPlayWhenReady(false);
+            player.clearVideoSurface();
             player.release();
         }
         player = null;
     }
 
-    public void goToBackground(){
-        if(player != null){
-            isPlayerPlaying = player.getPlayWhenReady();
-            player.setPlayWhenReady(false);
+    public boolean isVideoPlaying() {
+        if(player != null) {
+            return player.getPlayWhenReady();
         }
+        else return false;
     }
 
-    public void goToForeground(){
-        if(player != null){
-            if(!player.getPlayWhenReady()) {
-                player.setPlayWhenReady(isPlayerPlaying);
-            }
+    public long getCurrentPosition() {
+        if(player != null) {
+            return player.getCurrentPosition();
         }
-    }
-
-    public void forcePlay(){
-        if(player != null){
-            player.setPlayWhenReady(true);
-        }
+        else return 0;
     }
 }

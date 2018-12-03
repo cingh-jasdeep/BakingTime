@@ -1,6 +1,6 @@
 package com.example.android.bakingtime.ui.select_recipe_step.fragments;
 
-import android.app.Activity;
+import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.res.Configuration;
 import android.databinding.DataBindingUtil;
@@ -26,20 +26,22 @@ import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.example.android.bakingtime.R;
+import com.example.android.bakingtime.api.api_utilities.Status;
 import com.example.android.bakingtime.databinding.FragmentRecipeStepDetailBinding;
 import com.example.android.bakingtime.db.model.RecipeEntry;
-import com.example.android.bakingtime.db.model.RecipeWithIngredientsAndSteps;
 import com.example.android.bakingtime.db.model.StepEntry;
 import com.example.android.bakingtime.ui.select_recipe_step.SelectRecipeStepViewModel;
 import com.example.android.bakingtime.ui.utlities.ConnectionBuddyUtils;
 import com.example.android.bakingtime.ui.utlities.ExoPlayerVideoHandler;
+import com.google.android.exoplayer2.util.Util;
 import com.zplesac.connectionbuddy.interfaces.ConnectivityChangeListener;
 import com.zplesac.connectionbuddy.models.ConnectivityEvent;
 import com.zplesac.connectionbuddy.models.ConnectivityState;
 
-import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static com.example.android.bakingtime.data.Constant.DEFAULT_RECIPE_STEP_INDEX;
 
 public class RecipeStepDetailFragment extends Fragment implements ConnectivityChangeListener {
 
@@ -57,15 +59,8 @@ public class RecipeStepDetailFragment extends Fragment implements ConnectivityCh
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-//        android.os.Debug.waitForDebugger();
         setupUiComponents(inflater, container);
         return mBinding.getRoot();
-    }
-
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        connectViewModel();
     }
 
     private void setupUiComponents(LayoutInflater inflater, ViewGroup container) {
@@ -74,6 +69,54 @@ public class RecipeStepDetailFragment extends Fragment implements ConnectivityCh
 
 
     }
+
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        // initialize player for sdk > 23
+        if (Util.SDK_INT > 23) {
+            // initialize player
+            connectViewModel();
+        }
+    }
+
+//initalize player code
+//in sdk 24 split screen so get initialize before
+    //@Override
+    //public void onStart() {
+    //    super.onStart();
+    //    if (Util.SDK_INT > 23) {
+    //        // initialize player
+    //    }
+    //}
+    //      in 23 or older can wait for onresume to initialize
+    //    @Override
+    //    public void onResume() {
+    //        super.onResume();
+    //        if ((Util.SDK_INT <= 23 || player == null)) {
+    //            // initialize player
+    //        }
+    //    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        // initialize player for sdk <= 23
+        if (Util.SDK_INT <= 23) {
+            //initialize player
+            connectViewModel();
+        }
+
+        ConnectionBuddyUtils.registerConnectionBuddyEvents(this, this);
+        if(getActivity() !=null )
+            handleOrientation(getActivity().getResources().getConfiguration());
+    }
+
+
+
 
 
     private void connectViewModel() {
@@ -94,7 +137,7 @@ public class RecipeStepDetailFragment extends Fragment implements ConnectivityCh
             //https://stackoverflow.com/questions/3663665/how-can-i-get-the-current-screen-orientation
             handleOrientation(getResources().getConfiguration());
 
-            mViewModel.step.observe(this, stepEntry -> {
+            mViewModel.getCurrentStep().observe(this, stepEntry -> {
                 if(stepEntry != null) {
 
                     displayRecipeStepMedia(stepEntry);
@@ -107,7 +150,7 @@ public class RecipeStepDetailFragment extends Fragment implements ConnectivityCh
 
                         hideNextButtonForLastScreen();
 
-                        setupRecipeStepNavigationButtonListeners(stepEntry);
+                        setupRecipeStepNavigationButtonListeners();
 
                         setupNavigationStepsTextFooter();
 
@@ -120,9 +163,6 @@ public class RecipeStepDetailFragment extends Fragment implements ConnectivityCh
     }
 
     private void displayRecipeStepMedia(StepEntry stepEntry) {
-
-        mViewModel.getVideoHandler().releaseVideoPlayer();
-        mBinding.pbImageLoading.setVisibility(View.INVISIBLE);
 
         if(stepEntry.getVideoURL() == null || stepEntry.getVideoURL().equals("")) {
 
@@ -184,10 +224,9 @@ public class RecipeStepDetailFragment extends Fragment implements ConnectivityCh
         ExoPlayerVideoHandler videoHandler = mViewModel.getVideoHandler();
         if(videoHandler != null) {
             videoHandler.prepareExoPlayerForUri(getContext(), Uri.parse(videoURL),
+                    mViewModel.isVideoPlayOnLoad(), mViewModel.getVideoCurrentPlayingPosition(),
                     mBinding.pvRecipeStepDetailVideoPlayer);
-            videoHandler.forcePlay();
         }
-
     }
 
     @Override
@@ -196,66 +235,59 @@ public class RecipeStepDetailFragment extends Fragment implements ConnectivityCh
         ConnectionBuddyUtils.clearConnectionBuddyState(savedInstanceState, this);
     }
 
+    //save player state in onpause (safest for all api)
+
     @Override
     public void onPause() {
-        //todo save player state here for savedinstance state
+
+        //if video is visible
         if(mBinding.pvRecipeStepDetailVideoPlayer.getVisibility() == View.VISIBLE) {
-            mViewModel.getVideoHandler().goToBackground();
+            //save player state here in viewmodel
+            mViewModel.saveVideoPlayerState();
+            //release exoplayer resources for sdk <= 23
+            if (Util.SDK_INT <= 23) {
+                // release player
+                mViewModel.getVideoHandler().releaseVideoPlayer();
+            }
         }
+
+        //unregister network change updates
         ConnectionBuddyUtils.unregisterConnectionBuddyEvents(this);
         super.onPause();
     }
-//save player state in onpause (safest for all api)
 
-//release player code
+
+//release video player code
     // no guarantee for onstop so release in onpause
-//    @Override
-//    public void onPause() {
-//        super.onPause();
-//        if (Util.SDK_INT <= 23) {
-//            // release player
-//        }
-//    }
+    //    @Override
+    //    public void onPause() {
+    //        super.onPause();
+    //        if (Util.SDK_INT <= 23) {
+    //            // release player
+    //        }
+    //    }
 
-//    there is guarantee so release later in onstop
-//    @Override
-//    public void onStop() {
-//        super.onStop();
-//        if (Util.SDK_INT > 23) {
-//            // release player
-//        }
-//    }
-
-    //initalize player code
-    //in 24 split screen so get initialize before
-//@Override
-//public void onStart() {
-//    super.onStart();
-//    if (Util.SDK_INT > 23) {
-//        // initialize player
-//    }
-//}
-//      in 23 or older can wait for onresume to initialize
-//    @Override
-//    public void onResume() {
-//        super.onResume();
-//        if ((Util.SDK_INT <= 23 || player == null)) {
-//            // initialize player
-//        }
-//    }
-
-    // previewseekbar
-    // pip for and after oreo (will need media session)
+    //    there is guarantee for onstop so release later in onstop
+    //    @Override
+    //    public void onStop() {
+    //        super.onStop();
+    //        if (Util.SDK_INT > 23) {
+    //            // release player
+    //        }
+    //    }
 
     @Override
-    public void onResume() {
-        super.onResume();
+    public void onStop() {
+
+        //if video is visible
         if(mBinding.pvRecipeStepDetailVideoPlayer.getVisibility() == View.VISIBLE) {
-            mViewModel.getVideoHandler().goToForeground();
+            //release exoplayer resources for sdk > 23
+            if (Util.SDK_INT > 23) {
+                // release player
+                mViewModel.getVideoHandler().releaseVideoPlayer();
+            }
         }
-        ConnectionBuddyUtils.registerConnectionBuddyEvents(this, this);
-        if(getActivity() !=null )
-            handleOrientation(getActivity().getResources().getConfiguration());
+        super.onStop();
     }
 
     @Override
@@ -273,51 +305,84 @@ public class RecipeStepDetailFragment extends Fragment implements ConnectivityCh
         }
     }
 
-    private void setupRecipeStepNavigationButtonListeners(@NonNull StepEntry stepEntry) {
+    private void setupRecipeStepNavigationButtonListeners() {
         if(mBinding!=null) {
 
-            mBinding.bRecipeStepDetailPrevButton.setOnClickListener(v -> handlePreviousButtonClick(stepEntry));
+            mBinding.bRecipeStepDetailPrevButton.setOnClickListener(v -> handlePreviousButtonClick());
 
-            mBinding.bRecipeStepDetailNextButton.setOnClickListener(v -> handleNextButtonClick(stepEntry));
+            mBinding.bRecipeStepDetailNextButton.setOnClickListener(v -> handleNextButtonClick());
         }
     }
 
-    private void handlePreviousButtonClick(StepEntry step) {
+    private void handlePreviousButtonClick() {
         if(mViewModel.getRecipeStepIndex() != null) {
-            mViewModel.setRecipeStepIndex(mViewModel.getRecipeStepIndex()-1);
+
+            resetVideoAndLoadingIndicator();
+
+            LiveData<Status> singleOperation =
+                    mViewModel.setRecipeStepIndexSingleEvent(mViewModel.getRecipeStepIndex() - 1);
+            singleOperation.observe(this,
+                    status -> {
+                        if(status != null && status.equals(Status.SUCCESS)) {
+                            singleOperation.removeObservers(this);
+                        }
+                    });
+
         }
     }
 
 
-    private void handleNextButtonClick(StepEntry step) {
+    private void handleNextButtonClick() {
         if(mViewModel.getRecipeStepIndex() != null) {
-            mViewModel.setRecipeStepIndex(mViewModel.getRecipeStepIndex() + 1);
+
+            resetVideoAndLoadingIndicator();
+
+            LiveData<Status> singleOperation =
+                    mViewModel.setRecipeStepIndexSingleEvent(mViewModel.getRecipeStepIndex() + 1);
+            singleOperation.observe(this,
+                    status -> {
+                        if(status != null && status.equals(Status.SUCCESS)) {
+                            singleOperation.removeObservers(this);
+                        }
+                    });
+
+
         }
+    }
+
+    //used to reset video player state and loading indicator
+    private void resetVideoAndLoadingIndicator() {
+        mViewModel.resetVideoPlayerState();
+
+        mBinding.pbImageLoading.setVisibility(View.INVISIBLE);
     }
 
     private void hideNextButtonForLastScreen() {
-        RecipeWithIngredientsAndSteps recipeWithData = mViewModel.recipeWithData.getValue();
-        if(recipeWithData !=null ) {
+        mViewModel.getRecipeWithData().observe(this, recipeWithData -> {
+            if(recipeWithData !=null ) {
+                mViewModel.getRecipeWithData().removeObservers(this);
+                RecipeEntry recipe = recipeWithData.recipe;
+                recipe.setSteps(recipeWithData.steps);
+                recipe.setIngredients(recipeWithData.ingredients);
+                if(mViewModel.getRecipeStepIndex() != null) {
+                    if (mViewModel.getRecipeStepIndex() == recipe.getSteps().size() - 1) {
+                        mBinding.bRecipeStepDetailNextButton.setEnabled(false);
+                        mBinding.bRecipeStepDetailNextButton.setText(R.string.txt_recipe_step_detail_button_last_step);
 
-            RecipeEntry recipe = recipeWithData.recipe;
-            recipe.setSteps(recipeWithData.steps);
-            recipe.setIngredients(recipeWithData.ingredients);
-            if(mViewModel.getRecipeStepIndex() != null) {
-                if (mViewModel.getRecipeStepIndex() == recipe.getSteps().size() - 1) {
-                    mBinding.bRecipeStepDetailNextButton.setEnabled(false);
-                    mBinding.bRecipeStepDetailNextButton.setText(R.string.txt_recipe_step_detail_button_last_step);
-
-                } else {
-                    mBinding.bRecipeStepDetailNextButton.setEnabled(true);
-                    mBinding.bRecipeStepDetailNextButton.setText(R.string.txt_recipe_step_detail_button_next_step);
+                    } else {
+                        mBinding.bRecipeStepDetailNextButton.setEnabled(true);
+                        mBinding.bRecipeStepDetailNextButton.setText(R.string.txt_recipe_step_detail_button_next_step);
+                    }
                 }
             }
-        }
+        });
+
+
     }
 
     private void hidePreviousButtonForFirstScreen() {
         if(mViewModel.getRecipeStepIndex() != null) {
-            if(mViewModel.getRecipeStepIndex() == 0) {
+            if(mViewModel.getRecipeStepIndex() == DEFAULT_RECIPE_STEP_INDEX) {
                 mBinding.bRecipeStepDetailPrevButton.setEnabled(false);
                 mBinding.bRecipeStepDetailPrevButton.setText(R.string.txt_recipe_step_detail_button_first_step);
             }
@@ -347,14 +412,18 @@ public class RecipeStepDetailFragment extends Fragment implements ConnectivityCh
     }
 
     private void setupNavigationStepsTextFooter() {
-        if(mViewModel.getRecipeStepIndex() != null &&
-                mViewModel.recipeWithData.getValue() != null) {
-            mBinding.tvRecipeStepDetailNavigationPositionText.setText(
-                    String.format(getString(R.string.formatted_recipe_step_position),
-                            String.valueOf(mViewModel.getRecipeStepIndex()),
-                            String.valueOf(mViewModel.recipeWithData.getValue().steps.size() - 1))
-            );
-        }
+        mViewModel.getRecipeWithData().observe(this, recipeWithData -> {
+            if(recipeWithData !=null ) {
+                mViewModel.getRecipeWithData().removeObservers(this);
+                if(mViewModel.getRecipeStepIndex() != null ) {
+                    mBinding.tvRecipeStepDetailNavigationPositionText.setText(
+                            String.format(getString(R.string.formatted_recipe_step_position),
+                                    String.valueOf(mViewModel.getRecipeStepIndex()),
+                                    String.valueOf(recipeWithData.steps.size() - 1))
+                    );
+                }
+            }
+        });
     }
 
     @Override
@@ -382,9 +451,9 @@ public class RecipeStepDetailFragment extends Fragment implements ConnectivityCh
                             // Note that system bars will only be "visible" if none of the
                             // LOW_PROFILE, HIDE_NAVIGATION, or FULLSCREEN flags are set.
                             if ((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0) {
-                                resetVideoToDefaultSizeAndShowActionBar(newConfig);
+                                resetVideoToDefaultSizeAndShowActionBar();
                             } else {
-                                expandVideoToFullScreenAndHideActionBar(newConfig);
+                                expandVideoToFullScreenAndHideActionBar();
                             }
                         });
             }
@@ -392,7 +461,7 @@ public class RecipeStepDetailFragment extends Fragment implements ConnectivityCh
         }
     }
 
-    private void resetVideoToDefaultSizeAndShowActionBar(Configuration newConfig) {
+    private void resetVideoToDefaultSizeAndShowActionBar() {
         //        <!-- steps for portrait transformation-->
 
         //<!--1 fl_recipe_step_detail_video_frame set size equal to 0 -->
@@ -439,7 +508,7 @@ public class RecipeStepDetailFragment extends Fragment implements ConnectivityCh
         if(actionBar != null) actionBar.show();
     }
 
-    private void expandVideoToFullScreenAndHideActionBar(Configuration newConfig) {
+    private void expandVideoToFullScreenAndHideActionBar() {
 
         //        <!-- steps for landscape transformation-->
 

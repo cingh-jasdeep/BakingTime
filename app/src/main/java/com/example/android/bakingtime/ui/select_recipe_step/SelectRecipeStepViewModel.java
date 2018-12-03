@@ -1,14 +1,15 @@
 package com.example.android.bakingtime.ui.select_recipe_step;
 
 import android.app.Application;
-import android.arch.core.util.Function;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MediatorLiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Transformations;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 
+import com.example.android.bakingtime.api.api_utilities.Status;
 import com.example.android.bakingtime.data.Constant;
 import com.example.android.bakingtime.data.repository.RecipeRepository;
 import com.example.android.bakingtime.db.AppDatabase;
@@ -17,10 +18,10 @@ import com.example.android.bakingtime.db.model.StepEntry;
 import com.example.android.bakingtime.ui.select_recipe_step.fragments.FragmentState;
 import com.example.android.bakingtime.ui.utlities.ExoPlayerVideoHandler;
 
-import java.util.List;
-
 import static com.example.android.bakingtime.data.Constant.DEFAULT_RECIPE_STEP_INDEX;
 import static com.example.android.bakingtime.data.Constant.DEFAULT_TWO_PANE;
+import static com.example.android.bakingtime.data.Constant.DEFAULT_VIDEO_CURRENT_POSITION;
+import static com.example.android.bakingtime.data.Constant.DEFAULT_VIDEO_PLAY_ON_LOAD;
 import static com.example.android.bakingtime.data.Constant.INVALID_RECIPE_ID;
 import static com.example.android.bakingtime.data.Constant.INVALID_RECIPE_STEP_INDEX;
 
@@ -34,18 +35,29 @@ public class SelectRecipeStepViewModel extends AndroidViewModel {
     private MutableLiveData<Integer> mRecipeId = new MutableLiveData<>();
     private MutableLiveData<Integer> mRecipeStepIndex = new MutableLiveData<>();
 
-    // used for storing exoPlayer video player state
+    // variables used for storing exoPlayer video player state
     private ExoPlayerVideoHandler videoHandler = new ExoPlayerVideoHandler();
+    private boolean videoPlayOnLoad = false;
+    private long videoCurrentPlayingPosition = 0;
 
-    public LiveData<RecipeWithIngredientsAndSteps> recipeWithData =
-            Transformations.switchMap(mRecipeId, new Function<Integer, LiveData<RecipeWithIngredientsAndSteps>>() {
-                @Override
-                public LiveData<RecipeWithIngredientsAndSteps> apply(Integer recipeId) {
+
+    public LiveData<RecipeWithIngredientsAndSteps> getRecipeWithData() {
+        return recipeWithData;
+    }
+
+    private LiveData<RecipeWithIngredientsAndSteps> recipeWithData =
+            Transformations.switchMap(mRecipeId, recipeId -> {
+                if(recipeId == null || mRepo == null) return null;
+                else {
                     return mRepo.loadRecipeByIdWithIngredientsAndSteps(recipeId);
                 }
             });
 
-    public LiveData<StepEntry> step =
+    public LiveData<StepEntry> getCurrentStep() {
+        return currentStep;
+    }
+
+    private LiveData<StepEntry> currentStep =
             Transformations.switchMap(mRecipeStepIndex, stepIndex -> {
                 Integer recipeId = mRecipeId.getValue();
                 if(stepIndex == null || recipeId == null || mRepo == null) return null;
@@ -79,6 +91,11 @@ public class SelectRecipeStepViewModel extends AndroidViewModel {
 
                 mTwoPane = bundle.getBoolean(Constant.EXTRA_TWO_PANE, DEFAULT_TWO_PANE);
 
+                videoPlayOnLoad = bundle.getBoolean(Constant.EXTRA_VIDEO_PLAY_ON_LOAD, DEFAULT_VIDEO_PLAY_ON_LOAD);
+
+                videoCurrentPlayingPosition =
+                        bundle.getLong(Constant.EXTRA_VIDEO_CURRENT_POSITION, DEFAULT_VIDEO_CURRENT_POSITION);
+
             }
         }
     }
@@ -104,6 +121,8 @@ public class SelectRecipeStepViewModel extends AndroidViewModel {
             }
 
             bundle.putBoolean(Constant.EXTRA_TWO_PANE, mTwoPane);
+            bundle.putBoolean(Constant.EXTRA_VIDEO_PLAY_ON_LOAD, isVideoPlayOnLoad());
+            bundle.putLong(Constant.EXTRA_VIDEO_CURRENT_POSITION, getVideoCurrentPlayingPosition());
         }
     }
 
@@ -116,13 +135,29 @@ public class SelectRecipeStepViewModel extends AndroidViewModel {
             mState.setValue(state);
     }
 
-    public void setRecipeStepIndex(int recipeStepIndex) {
-        if(recipeWithData.getValue()!=null) {
-            if(recipeStepIndex >= DEFAULT_RECIPE_STEP_INDEX &&
-                    recipeStepIndex < recipeWithData.getValue().steps.size()) {
-                mRecipeStepIndex.setValue(recipeStepIndex);
+    public LiveData<Status> setRecipeStepIndexSingleEvent(int recipeStepIndex) {
+
+        MediatorLiveData<Status> singleOperationOnLiveData = new MediatorLiveData<>();
+        singleOperationOnLiveData.addSource(recipeWithData, recipeData -> {
+            if(recipeData != null) {
+                //perform operation only once
+                singleOperationOnLiveData.removeSource(recipeWithData);
+
+                if(recipeStepIndex >= DEFAULT_RECIPE_STEP_INDEX &&
+                        recipeStepIndex < recipeData.steps.size()) {
+                    mRecipeStepIndex.setValue(recipeStepIndex);
+                }
+                singleOperationOnLiveData.setValue(Status.SUCCESS);
             }
-        }
+        });
+
+        return singleOperationOnLiveData;
+//        if(recipeWithData.getValue()!=null) {
+//            if(recipeStepIndex >= DEFAULT_RECIPE_STEP_INDEX &&
+//                    recipeStepIndex < recipeWithData.getValue().steps.size()) {
+//                mRecipeStepIndex.setValue(recipeStepIndex);
+//            }
+//        }
     }
 
     public Integer getRecipeStepIndex() {
@@ -141,11 +176,37 @@ public class SelectRecipeStepViewModel extends AndroidViewModel {
         return videoHandler;
     }
 
-    @Override
-    protected void onCleared() {
+    public boolean isVideoPlayOnLoad() {
+        return videoPlayOnLoad;
+    }
+
+    public void setVideoPlayOnLoad(boolean videoPlayOnLoad) {
+        this.videoPlayOnLoad = videoPlayOnLoad;
+    }
+
+    public long getVideoCurrentPlayingPosition() {
+        return videoCurrentPlayingPosition;
+    }
+
+    public void setVideoCurrentPlayingPosition(long videoCurrentPlayingPosition) {
+        this.videoCurrentPlayingPosition = videoCurrentPlayingPosition;
+    }
+
+    public void saveVideoPlayerState() {
+        if(videoHandler != null) {
+            setVideoPlayOnLoad(videoHandler.isVideoPlaying());
+            setVideoCurrentPlayingPosition(videoHandler.getCurrentPosition());
+        }
+    }
+
+    public void resetVideoPlayerState() {
         if(videoHandler != null) {
             videoHandler.releaseVideoPlayer();
         }
-        super.onCleared();
+
+        setVideoCurrentPlayingPosition(0);
+        // auto play on load new video
+        // could be system preference?
+        setVideoPlayOnLoad(true);
     }
 }

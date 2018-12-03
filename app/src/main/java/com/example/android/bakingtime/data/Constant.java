@@ -31,6 +31,9 @@ public class Constant {
     public static final int INTRODUCTION_STEPS = 1;
 
     public static final boolean DEFAULT_TWO_PANE = false;
+    public static final boolean DEFAULT_VIDEO_PLAY_ON_LOAD = true;
+    public static final long DEFAULT_VIDEO_CURRENT_POSITION = 0;
+
 
     public static final NumberFormat INGREDIENT_QUANTITY_NUMBER_FORMAT = new DecimalFormat("##.##");
 
@@ -39,4 +42,6 @@ public class Constant {
     public static final String EXTRA_FRAGMENT_STATE = "fragment_state";
     public static final String EXTRA_RECIPE_ID = "recipe_id";
     public static final String EXTRA_TWO_PANE = "two_pane";
+    public static final String EXTRA_VIDEO_PLAY_ON_LOAD = "video_play_on_load";
+    public static final String EXTRA_VIDEO_CURRENT_POSITION = "video_current_position";
 }

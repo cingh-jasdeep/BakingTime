@@ -1,5 +1,8 @@
 package com.example.android.bakingtime.ui.select_recipe_step.fragments;
 
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MediatorLiveData;
+import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
@@ -16,11 +19,11 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.android.bakingtime.R;
+import com.example.android.bakingtime.api.api_utilities.Status;
 import com.example.android.bakingtime.databinding.FragmentSelectRecipeStepListBinding;
+import com.example.android.bakingtime.db.model.RecipeWithIngredientsAndSteps;
 import com.example.android.bakingtime.ui.select_recipe_step.SelectRecipeStepViewModel;
 import com.example.android.bakingtime.ui.select_recipe_step.adapters.RecipeStepAdapter;
-
-import java.util.Objects;
 
 public class SelectRecipeStepListFragment extends Fragment implements RecipeStepAdapter.RecipeStepAdapterOnClickHandler, View.OnClickListener {
 
@@ -68,8 +71,9 @@ public class SelectRecipeStepListFragment extends Fragment implements RecipeStep
 
         if(getActivity() != null) {
             mViewModel = ViewModelProviders.of(getActivity()).get(SelectRecipeStepViewModel.class);
-            mViewModel.recipeWithData.observe(this, recipeEntryWithData -> {
+            mViewModel.getRecipeWithData().observe(this, recipeEntryWithData -> {
                 if(recipeEntryWithData!=null) {
+                    mViewModel.getRecipeWithData().removeObservers(this);
                     mAdapter.setRecipeStepsData(recipeEntryWithData.steps);
                 }
             });
@@ -111,7 +115,15 @@ public class SelectRecipeStepListFragment extends Fragment implements RecipeStep
     @Override
     public void onClick(Integer stepIndex) {
         if(mViewModel!=null) {
-            mViewModel.setRecipeStepIndex(stepIndex);
+
+            LiveData<Status> singleOperation = mViewModel.setRecipeStepIndexSingleEvent(stepIndex);
+            singleOperation.observe(this,
+                    status -> {
+                if(status != null && status.equals(Status.SUCCESS)) {
+                    singleOperation.removeObservers(this);
+                }
+            });
+
             mViewModel.setState(FragmentState.StepDetail);
         }
     }

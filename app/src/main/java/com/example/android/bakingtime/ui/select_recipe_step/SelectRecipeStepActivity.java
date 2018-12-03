@@ -127,8 +127,9 @@ public class SelectRecipeStepActivity extends AppCompatActivity {
             }
         });
 
-        mViewModel.recipeWithData.observe(this, recipeEntryWithData -> {
+        mViewModel.getRecipeWithData().observe(this, recipeEntryWithData -> {
             if(recipeEntryWithData!=null) {
+                mViewModel.getRecipeWithData().removeObservers(this);
                 ActionBar actionBar = getSupportActionBar();
                 if(actionBar != null) actionBar.setTitle(recipeEntryWithData.recipe.getName());
             }
@@ -237,6 +238,7 @@ public class SelectRecipeStepActivity extends AppCompatActivity {
             if(!(currentBackStackFragment instanceof RecipeIngredientsListFragment)
                     && !(currentBackStackFragment instanceof RecipeStepDetailFragment)){
                 mViewModel.setState(FragmentState.StepList);
+                mViewModel.resetVideoPlayerState();
                 RecipeStepDetailFragment.showSystemUI(getWindow().getDecorView());
                 RecipeStepDetailFragment.showActionBar(getSupportActionBar());
             }
