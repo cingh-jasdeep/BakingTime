@@ -426,13 +426,6 @@ public class RecipeStepDetailFragment extends Fragment implements ConnectivityCh
         });
     }
 
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-
-        handleOrientation(newConfig);
-    }
-
     private void handleOrientation(Configuration newConfig) {
         if(!mViewModel.isTwoPane()) {
             // Checks the orientation of the screen

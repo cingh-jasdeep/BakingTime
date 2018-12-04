@@ -27,7 +27,6 @@
 
         <activity
             android:name=".ui.select_recipe_step.SelectRecipeStepActivity"
-            android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
             android:parentActivityName=".ui.select_recipe.SelectRecipeActivity" >
             <!-- Parent activity meta-data to support 4.0 and lower -->
             <meta-data
