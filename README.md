@@ -5,6 +5,8 @@ Waheguru ji
 This is submission project code which is part of [udacity android developer course](https://in.udacity.com/course/android-developer-nanodegree-by-google--nd801).
 The **Baking time** app shows a list of recipes, curated by Udacity’s resident baker-in-chief, Miriam, and shows step wise instruction for each recipe when selected.
 
+[Scroll Down to screenshots](#ss)
+
 ## Why this Project?
 As a working Android developer, you often have to create and implement apps where you are responsible for designing and planning the steps you need to take to create a production-ready app. Unlike Popular Movies where we gave you an implementation guide, it will be up to you to figure things out for the Baking App.
 
@@ -24,7 +26,7 @@ Through this project, I learnt to:
 
 - [Link](https://github.com/cingh-jasdeep/BakingTime/projects/1) to project to outline my workflow
 
-- Here are some screenshots
+- <a name="ss"></a>Here are some screenshots
 
 Select a Recipe - Portrait (Phone)
 
