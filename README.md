@@ -8,7 +8,7 @@ The **Baking time** app shows a list of recipes, curated by Udacity’s resident
 [Scroll Down to screenshots](#ss)
 
 ## Why this Project?
-As a working Android developer, you often have to create and implement apps where you are responsible for designing and planning the steps you need to take to create a production-ready app. Unlike Popular Movies where we gave you an implementation guide, it will be up to you to figure things out for the Baking App.
+As a working Android developer, you often have to create and implement apps where you are responsible for designing and planning the steps you need to take to create a production-ready app.
 
 By building this app, one can demonstrate understanding of the foundational elements of programming for Android. 
 The app communicates with the Internet and provides a responsive and delightful user experience.
